@@ -1,0 +1,6 @@
+{
+  "name": "Channels and Beams tutorial",
+  "description": "A tutorial to send notifications via Channels and fallback to Beams when users are offline",
+  "repository": "https://github.com/pusher/pusher_tutorial_channels_beams_notif",
+  "keywords": ["pusher", "channels", "beams"]
+}
