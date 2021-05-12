@@ -1,0 +1,22 @@
+{
+  "name": "channelsbeamsnotif",
+  "version": "1.0.0",
+  "description": "Channels and Beams notification demo",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Chris Casey",
+  "license": "MIT",
+  "dependencies": {
+    "@pusher/push-notifications-server": "^1.2.3",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "hbs": "^4.1.2",
+    "passport": "^0.4.1",
+    "passport-github2": "^0.1.12",
+    "pusher": "^5.0.0"
+  }
+}
