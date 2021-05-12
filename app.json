@@ -39,7 +39,7 @@
     },
      "BEAMS_SECRET_KEY":{
       "description": "Beams secret key. Find in Beams instance settings"
-    },
+    }
 
   }
 }
