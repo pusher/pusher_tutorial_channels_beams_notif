@@ -1,0 +1,171 @@
+/* Extra small devices (phones, 600px and down) */
+body{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+@media only screen and (max-width: 600px) {
+  .mainContainer {
+  	width: 95%;
+  }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  .mainContainer {
+  	width: 95%;
+  	max-width: 1000px;
+  }
+}
+
+h1 {
+	text-align:center;
+	font-size: 20px;
+	font-family: sans-serif;
+	color: #262d4d;
+}
+
+button{
+	border-radius: 9999px;
+	border: none;
+	padding: 10px;
+	font-family: sans-serif;
+	background-color: #edeffa;
+	color: #262d4d;
+}
+
+button:hover{
+	background-color: #f7f8ff;
+}
+
+#channels-connection-status{
+	border-radius: 9999px;
+	border: none;
+	padding: 10px;
+	font-family: sans-serif;
+	font: 400 13.3333px Arial;
+}
+
+.divButton{
+	display: flex; 
+	justify-content:space-between;
+}
+
+.divConnection{
+	display: flex; 
+	justify-content:flex-end;
+}
+
+.connected, .connected:hover{
+	color: white;
+	background-color: green;
+}
+
+.disconnected, .disconnected:hover{
+	color: white;
+	background-color: red;
+}
+
+.connecting, .connecting:hover{
+	color: orange;
+	background-color: #edeffa;
+}
+
+.error, .error:hover{
+	color: black;
+	background-color: red;
+}
+
+label{
+	color: #262d4d;
+	font-family: sans-serif;
+	font-size: medium;
+    font-style: normal;
+    font-weight: bold;
+}
+
+input[type=text], select {
+  font-family: sans-serif;
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type=submit] {
+  width: 40%;
+  background-color: #8731d2;
+  color: white;
+  padding: 10px 16px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  font-size: 16px;
+}
+
+input[type=submit]:hover {
+  background-color: #db07eb;
+}
+
+.divForm{
+  border-radius: 5px;
+  padding: 20px;
+  outline: thin solid #d6daed;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+#channelsnotifications {
+  font-family: sans-serif;
+  border-collapse: separate;
+  width: 100%;
+  border-spacing: 0 10px;
+}
+
+#channelsnotifications tr:not(:first-child){
+	background-color: white;
+	outline: thin solid #d6daed;
+}
+
+#channelsnotifications tr:not(:first-child):hover {
+	background-color: #f7f8ff;
+	color: #b000bd;
+}
+
+#channelsnotifications th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #f7f8ff;
+  color: #262d4d;
+  border: 1px;
+  padding: 8px;
+}
+
+#highPriority {
+	border-left: red solid 4px;
+	border-right: 1px;
+	border-top: 1px:
+	border-bottom 1px;
+	padding: 8px;
+}
+
+#lowPriority {
+	border-left: green solid 4px;
+	border-right: 1px;
+	border-top: 1px:
+	border-bottom 1px;
+	padding: 8px;
+}
+
+#noPriority {
+	border: 1px;
+	padding: 8px;
+}
+

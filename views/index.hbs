@@ -1,0 +1,287 @@
+<html>
+<head>
+    <title>Channels and Beams notifications</title>
+    <!--Imports-->
+    <script src="https://js.pusher.com/7.0.3/pusher.min.js"></script>
+    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js"></script>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+    <div class="mainContainer">
+        <h1>Channels and Beams notifications</h1>
+        <!-- divButton -->
+        <div class="divButton">
+            <button id="beams-notification-button" disabled>Loading...</button>
+            <button id="logout-button">Logout {{ user }}</button>
+        </div>
+        <!-- Trigger form -->
+        <div class="divForm">
+            <form id="triggerForm">
+                <label for="notification_title">Notification Title</label>
+                <input type="text" id="notification_title_data" name="notificationTitle" placeholder="Title.." maxlength="50" required="required">
+
+                <label for="notification_text">Notification Message</label>
+                <input type="text" id="notification_text_data" name="notificationText" placeholder="Message.." maxlength="50" required="required">
+
+                <label for="high_priority">High Priority</label>
+                <input type="checkbox" id="high_priority_data" name="highPriority">
+                
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+        <!-- Connection state button -->
+        <div class="divConnection">
+            <button id="channels-connection-toggle" disabled>Disabled</button>
+            <div id="channels-connection-status" class="connecting" disabled>connecting</div>
+        </div>
+        <!--Channels table-->
+        <table id="channelsnotifications">
+            <tr>
+                <th>Title</th>
+                <th>Message</th>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+            // Constants
+            const userId="{{ user }}"
+            const appKey = "{{ key }}"
+            const cluster = "{{ cluster }}"
+            const channelsauthEndpoint = "{{ channelsauthEndpoint }}"
+            const instanceId = "{{ instanceId }}"
+            const beamsauthEndpoint = "{{ beamsauthEndpoint }}"
+        
+            // Channels Initialisation
+
+            const pusher = new Pusher(appKey, {
+              cluster: cluster,
+              authEndpoint: channelsauthEndpoint
+          });
+
+            //Subscribe channel and bind to event
+            const channel = pusher.subscribe('private-userchannel-'+userId);
+            channel.bind('notification', function(data) {
+                tableUpdate(data);            
+            });
+
+            //Bind to state changes
+            pusher.connection.bind('state_change', function(states){
+               stateUpdate(states);
+           });
+
+            
+            //Beams Initialisation
+            const beamsTokenProvider = new PusherPushNotifications.TokenProvider({
+                url: beamsauthEndpoint,
+            })
+            let beamsSupported = true;
+            let beamsClient;
+            try {
+                let config = { instanceId }
+                beamsClient = new PusherPushNotifications.Client(config)
+            }catch(err){
+                if(err.message.includes("Pusher Beams does not support this browser version")){
+                    beamsSupported = false
+                }
+                throw err
+            }
+            //Beams is supported check
+            if(!beamsSupported){
+                configureButton("Browser not supported", true)
+            } else {
+                updateButtonState()
+            }
+
+            //Trigger button listener
+            const form = document.getElementById( "triggerForm" );
+            form.addEventListener( "submit", function ( event ) {
+                event.preventDefault();
+                sendData(event);
+            });
+
+            //Logout button listener
+            const logoutButton = document.getElementById("logout-button");
+            logoutButton.addEventListener("click", logout);
+            
+
+            // Notification table
+            function tableUpdate(data){
+                var table = document.getElementById("channelsnotifications");
+                var row = table.insertRow(1);
+                var cell1 = row.insertCell(0);
+                if (data.highPriority === true) {
+                    cell1.id="highPriority";
+                }else{
+                    cell1.id="lowPriority";
+                }
+                var cell2 = row.insertCell(1);
+                cell2.id="noPriority";
+                cell1.innerHTML = data.notificationTitle;
+                cell2.innerHTML = data.notificationText;
+            }
+
+            //Connection states
+            function stateUpdate(states){
+                var connectionToggle = document.getElementById("channels-connection-toggle");
+                var connectionStatus = document.getElementById("channels-connection-status");
+                if (states.current === "connected"){
+                    connectionToggle.innerText="Disconnect";
+                    connectionToggle.disabled = false;
+                    connectionToggle.removeEventListener("click", channelsConnect)
+                    connectionToggle.addEventListener("click", channelsDisconnect)
+                    connectionStatus.innerText = states.current;
+                    connectionStatus.classList.remove(states.previous);
+                    connectionStatus.classList.add(states.current);
+                }
+                else if (states.current === "disconnected"){
+                    connectionToggle.innerText="Connect";
+                    connectionToggle.disabled = false;
+                    connectionToggle.removeEventListener("click", channelsDisconnect)
+                    connectionToggle.addEventListener("click", channelsConnect)
+                    connectionStatus.innerText = states.current;
+                    connectionStatus.classList.remove(states.previous);
+                    connectionStatus.classList.add(states.current);
+                }
+                else if (states.current === "connecting"){
+                    connectionToggle.innerText="Connect";
+                    connectionToggle.disabled = true;
+                    connectionStatus.innerText = states.current;
+                    connectionStatus.classList.remove(states.previous);
+                    connectionStatus.classList.add(states.current);
+                }
+                else {
+                    connectionToggle.innerText="Disabled";
+                    connectionToggle.disabled = true;
+                    connectionStatus.innerText = "Error"
+                    connectionStatus.classList.remove(states.previous);
+                    connectionStatus.classList.add("error")
+                }
+            }
+        
+
+            //Logout function
+            async function logout(){
+                await beamsClient.stop();
+                await fetch('/logout', {
+                    method: 'GET', 
+                    mode: 'same-origin', 
+                    cache: 'no-cache', 
+                    credentials: 'same-origin', 
+                    redirect: 'follow',
+                    referrerPolicy: 'no-referrer'
+                });
+                window.location = "/login";
+            };
+
+            //Channels connection change
+            function channelsConnect(){
+                pusher.connect();
+            }
+
+            function channelsDisconnect(){
+                pusher.disconnect();
+            }
+
+            //Beams functions
+
+            
+            function configureButton(message, disabled, onclick){
+                let button = document.getElementById("beams-notification-button")
+                button.innerText = message
+                if (onclick) {
+                    button.onclick = ()=> {
+                        button.disabled = true;
+                        onclick()
+                    }
+                }
+                button.disabled = disabled
+            }
+            function updateButtonState(){
+                beamsClient.getRegistrationState()
+                .then(state => {
+                    let states = PusherPushNotifications.RegistrationState
+                    switch(state) {
+                        case states.PERMISSION_DENIED: {
+                            configureButton("Notifications blocked", true)
+                            break
+                        }
+                        case states.PERMISSION_GRANTED_REGISTERED_WITH_BEAMS: {
+                            beamsClient.getUserId()
+                            .then(user => {
+                                if (user===userId) {
+                                    configureButton("Disable notifications", false, disableNotifications)
+                                } else {
+                                    configureButton("Enable notifications", false, enableNotifications)
+                                }
+                            })
+                            break
+                        }
+                        case states.PERMISSION_GRANTED_NOT_REGISTERED_WITH_BEAMS: {
+                            configureButton("Enable notifications", false, enableNotifications)
+                            break
+                        }
+                        case states.PERMISSION_PROMPT_REQUIRED: {
+                            configureButton("Enable notifications", false, enableNotifications)
+                            break
+                        }
+                    }
+                })
+                .catch(console.error)
+            }
+            function enableNotifications(){
+                beamsClient
+                .start()
+                .then(() => beamsClient.setUserId(userId, beamsTokenProvider))
+                .finally(updateButtonState)
+                .catch(console.error)
+            }
+            function disableNotifications(){
+                beamsClient.stop()
+                .finally(updateButtonState)
+                .catch(console.err)
+            }
+
+            
+
+            //Triggerform
+            function sendData(event) {
+                var highPriority = false;
+                var notificationTitle="Hello";
+                var notificationText="Hello World";
+
+                if (document.getElementById('high_priority_data').checked) {
+                    highPriority = true;
+                }
+
+                if (typeof document.getElementById('notification_title_data') !== 'undefined' && document.getElementById('notification_title_data').value != '') {
+                    notificationTitle = document.getElementById('notification_title_data').value;
+                }
+
+                if (typeof document.getElementById('notification_text_title') !== 'undefined' && document.getElementById('notification_title_data').value != '') {
+                    notificationText = document.getElementById('notification_text_data').value;
+                }
+
+                const data =
+                {
+                    notificationTitle: notificationTitle,
+                    notificationText: notificationText,
+                    highPriority: highPriority
+                }
+
+                fetch('/trigger', {
+                    method: 'POST', 
+                    mode: 'same-origin', 
+                    cache: 'no-cache', 
+                    credentials: 'same-origin', 
+                    headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  redirect: 'follow', 
+                  referrerPolicy: 'no-referrer', 
+                  body: JSON.stringify(data) 
+              });
+            }
+
+        </script>
+    </body>
+    </html>
