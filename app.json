@@ -8,7 +8,7 @@
       "description": "A secret key for session management in this app",
       "generator": "secret"
     },
-    "ENV":{
+    "ENVIRONMENT":{
       "description": "An environmental variable indicating which set of settings to use. Leave this as 'production' Enables secure cookies",
       "value": "production"
     },
