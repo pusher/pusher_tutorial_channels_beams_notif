@@ -151,16 +151,16 @@ input[type=submit]:hover {
 #highPriority {
 	border-left: red solid 4px;
 	border-right: 1px;
-	border-top: 1px:
-	border-bottom 1px;
+	border-top: 1px;
+	border-bottom: 1px;
 	padding: 8px;
 }
 
 #lowPriority {
 	border-left: green solid 4px;
 	border-right: 1px;
-	border-top: 1px:
-	border-bottom 1px;
+	border-top: 1px;
+	border-bottom: 1px;
 	padding: 8px;
 }
 
